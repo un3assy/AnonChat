@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnonChat - System Tagów Właściciela</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0c0f;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .auth-container {
+            max-width: 450px;
+            width: 100%;
+            background: #14171c;
+            border-radius: 20px;
+            border: 1px solid #2a2f35;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #c0a5ff, #ff9f7c);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #2a2f35;
+            padding-bottom: 0.5rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 0.7rem;
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 1rem;
+            border-radius: 10px;
+            transition: 0.1s;
+        }
+
+        .auth-tab.active {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-bottom: 0.3rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            background: #0f1116;
+            border: 1px solid #2a2f35;
+            border-radius: 10px;
+            color: #f0f0f0;
+            font-size: 0.95rem;
+        }
+
+        .auth-btn {
+            width: 100%;
+            background: #7c3aed;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .error-msg {
+            color: #f87171;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .success-msg {
+            color: #4ade80;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .app-container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            border-bottom: 2px solid #2a2f35;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #c0a5ff, #ff9f7c);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            cursor: pointer;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #2a2f35;
+            border: 1px solid #3a4048;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+        }
+
+        .nav-btn.active {
+            background: #7c3aed;
+            border-color: #8b5cf6;
+            color: white;
+        }
+
+        .clowns-btn {
+            background: #8b5cf6;
+        }
+
+        .logout-btn {
+            background: #2a2f35;
+            border: 1px solid #ff5555;
+            color: #ff8888;
+        }
+
+        .owner-badge {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            margin-left: 0.5rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .custom-tag {
+            background: linear-gradient(135deg, #ffaa00, #ff6600);
+            color: #1a0f0f;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            margin-left: 0.5rem;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 0 5px rgba(255,102,0,0.5);
+        }
+
+        .card {
+            background: #14171c;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            padding: 1.2rem;
+            border: 1px solid #2a2f35;
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            color: #e2e8f0;
+            border-left: 3px solid #8b5cf6;
+            padding-left: 0.6rem;
+        }
+
+        .row {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            background: #0f1116;
+            border: 1px solid #2a2f35;
+            border-radius: 10px;
+            color: #f0f0f0;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        button {
+            background: #2a2f35;
+            border: 1px solid #3a4048;
+            padding: 0.55rem 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        button.primary {
+            background: #7c3aed;
+            border-color: #8b5cf6;
+            color: white;
+        }
+
+        .file-label {
+            display: inline-block;
+            background: #1e2227;
+            padding: 0.45rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: 1px solid #3a4048;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .avatar-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .current-avatar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .posts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .post {
+            background: #111317;
+            border-radius: 16px;
+            border: 1px solid #2a2f35;
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .post-avatar img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #8b5cf6;
+        }
+
+        .post-content-wrapper {
+            flex: 1;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #2a2f35;
+            padding-bottom: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .nickname {
+            font-weight: 700;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+        }
+
+        .date {
+            font-size: 0.65rem;
+            color: #6b7280;
+        }
+
+        .post-text {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            color: #d1d5db;
+        }
+
+        .post-image img {
+            max-width: 280px;
+            max-height: 220px;
+            border-radius: 10px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 1.5rem;
+            color: #6b7280;
+        }
+
+        .footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.65rem;
+            color: #4b5563;
+        }
+
+        .owner-box {
+            background: linear-gradient(135deg, #1a0f0f, #0a0505);
+            border: 2px solid #ff3333;
+            border-radius: 20px;
+            padding: 1.8rem;
+            text-align: center;
+            margin: 1rem auto;
+            max-width: 400px;
+        }
+
+        .owner-name {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .owner-label {
+            font-size: 1.1rem;
+            color: #ff6666;
+            border-top: 1px solid #ff3333;
+            border-bottom: 1px solid #ff3333;
+            display: inline-block;
+            padding: 0.3rem 1rem;
+        }
+
+        .encryption-box {
+            background: #0f1116;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #4ade80;
+            text-align: center;
+        }
+
+        .clown-card {
+            background: linear-gradient(135deg, #2a1a2a, #1a0f1a);
+            border: 2px solid #ff69b4;
+            border-radius: 20px;
+            padding: 1.8rem;
+            text-align: center;
+            margin: 1rem auto;
+            max-width: 500px;
+        }
+
+        .clown-name {
+            font-size: 2.2rem;
+            color: #ff69b4;
+            margin-bottom: 1rem;
+        }
+
+        .clown-badge {
+            background: #ff69b4;
+            color: #1a0f1a;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        .clown-description li {
+            margin: 0.8rem 0;
+            list-style: none;
+            border-left: 3px solid #ff69b4;
+            padding-left: 1rem;
+            text-align: left;
+        }
+
+        .clown-quote {
+            font-style: italic;
+            color: #ffb6c1;
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #ff69b4;
+        }
+
+        .back-link {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .hidden-page {
+            display: none;
+        }
+
+        .owner-highlight {
+            border: 2px solid #ff3333;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .preview-img {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 8px;
+        }
+
+        .tags-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .tag-item {
+            background: #1e2227;
+            padding: 0.6rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #3a4048;
+        }
+
+        .tag-preview {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: linear-gradient(135deg, #ffaa00, #ff6600);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .delete-tag {
+            background: #ff5555;
+            border: none;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+<body>
+
+<div id="authPanel" class="auth-container">
+    <div class="auth-header">
+        <h1>💬 AnonChat</h1>
+        <p>Zaloguj się lub utwórz konto</p>
+    </div>
+    
+    <div class="auth-tabs">
+        <button id="loginTab" class="auth-tab active">🔐 Logowanie</button>
+        <button id="registerTab" class="auth-tab">📝 Rejestracja</button>
+    </div>
+    
+    <div id="loginForm" class="auth-form active">
+        <div class="input-group">
+            <label>Nazwa użytkownika</label>
+            <input type="text" id="loginUsername" placeholder="Wprowadź nazwę">
+        </div>
+        <div class="input-group">
+            <label>Hasło</label>
+            <input type="password" id="loginPassword" placeholder="Wprowadź hasło">
+        </div>
+        <button id="loginBtn" class="auth-btn">Zaloguj się</button>
+        <div id="loginError" class="error-msg"></div>
+    </div>
+    
+    <div id="registerForm" class="auth-form">
+        <div class="input-group">
+            <label>Nazwa użytkownika</label>
+            <input type="text" id="regUsername" placeholder="Wybierz nazwę" maxlength="20">
+        </div>
+        <div class="input-group">
+            <label>Hasło</label>
+            <input type="password" id="regPassword" placeholder="Wybierz hasło">
+        </div>
+        <div class="input-group">
+            <label>Potwierdź hasło</label>
+            <input type="password" id="regConfirmPassword" placeholder="Powtórz hasło">
+        </div>
+        <button id="registerBtn" class="auth-btn">Zarejestruj się</button>
+        <div id="registerError" class="error-msg"></div>
+        <div id="registerSuccess" class="success-msg"></div>
+    </div>
+</div>
+
+<div id="appContainer" class="app-container hidden">
+    <div class="container">
+        <div class="header">
+            <h1 id="homeBtn">💬 AnonChat</h1>
+            <div class="nav-buttons">
+                <button id="mainPageBtn" class="nav-btn active">🏠 Strona główna</button>
+                <button id="clownsBtn" class="nav-btn clowns-btn">🤡 CLOWNS</button>
+                <button id="creditsBtn" class="nav-btn">⭐ Credits</button>
+                <button id="logoutBtn" class="nav-btn logout-btn">🚪 Wyloguj</button>
+            </div>
+        </div>
+
+        <div id="mainPage">
+            <div class="card" id="profileCard">
+                <h2>👤 profil <span id="ownerBadgeHeader" style="display:none;" class="owner-badge">👑 OWNER</span></h2>
+                <div class="row">
+                    <div class="input-group">
+                        <input type="text" id="nickInput" placeholder="Twój nick" maxlength="30">
+                    </div>
+                    <button id="saveNickBtn" class="primary">zapisz nick</button>
+                </div>
+                <div class="avatar-section">
+                    <div class="current-avatar">
+                        <span>🖼️ awatar:</span>
+                        <div id="currentAvatarPreview"></div>
+                    </div>
+                    <label class="file-label">
+                        📷 zmień awatar
+                        <input type="file" id="avatarInput" accept="image/*">
+                    </label>
+                    <button id="removeAvatarBtn">usuń awatar</button>
+                </div>
+                <div id="avatarError" class="error-msg"></div>
+            </div>
+
+            <div id="ownerTagsCard" class="card" style="display:none;">
+                <h2>🏷️ Zarządzanie tagami (Tylko OWNER)</h2>
+                <div class="row">
+                    <div class="input-group" style="flex:2;">
+                        <input type="text" id="tagEmoji" placeholder="Emotka np. 🔥, 👑, ⭐" maxlength="5">
+                    </div>
+                    <div class="input-group" style="flex:3;">
+                        <input type="text" id="tagName" placeholder="Nazwa tagu np. VIP, ADMIN, LEGENDA" maxlength="20">
+                    </div>
+                    <button id="addTagBtn" class="primary">➕ Dodaj tag</button>
+                </div>
+                <div id="tagsList" class="tags-list"></div>
+            </div>
+
+            <div class="card">
+                <h2>➕ nowy post</h2>
+                <textarea id="postText" rows="3" placeholder="Treść..."></textarea>
+                <div style="margin-top: 0.5rem;">
+                    <label class="file-label">
+                        📷 obrazek do posta
+                        <input type="file" id="imageInput" accept="image/*">
+                    </label>
+                    <div id="imagePreviewContainer" style="display: inline-block; margin-left: 0.5rem;"></div>
+                </div>
+                <div class="form-actions" style="margin-top: 0.8rem;">
+                    <button id="submitPostBtn" class="primary">opublikuj</button>
+                </div>
+                <div id="postError" class="error-msg"></div>
+            </div>
+
+            <div class="card">
+                <h2>📌 posty</h2>
+                <div id="postsContainer" class="posts-list">
+                    <div class="empty">Brak postów</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="clownsPage" class="hidden-page">
+            <div class="card">
+                <h2>🤡 KRÓLESTWO KLAUNÓW 🤡</h2>
+                <div class="clown-card">
+                    <div class="clown-name">HAZY</div>
+                    <div class="clown-badge">🌟 GŁÓWNY KLAUN 🌟</div>
+                    <div class="clown-description">
+                        <li>🔻 "Pseudo-haker" który myśli, że włamanie do konta to szczyt możliwości</li>
+                        <li>💀 Ledwo odpala cheaty do Minecrafta – crashuje mu się gra</li>
+                        <li>🎭 Upokarza się za itemy w grach – oddaje skórki za obietnicę boostowania</li>
+                        <li>📉 Sprzedaje "unikalne konta" które sam zapomniał 5 minut po założeniu</li>
+                        <li>🤡 Jego "serwer hakerski" to folder z crackowanymi programami z 2012</li>
+                        <li>💬 Na discordzie ma 300 ról ale nikt go nie traktuje poważnie</li>
+                    </div>
+                    <div class="clown-quote">"Mogę ci dać OP na moim serwerze, tylko daj mi swoje diamenty..." – Hazy</div>
+                </div>
+                <div class="back-link">
+                    <button id="backFromClowns" class="primary">← Powrót</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="creditsPage" class="hidden-page">
+            <div class="card">
+                <h2>⭐ Credits</h2>
+                <div class="owner-box">
+                    <div class="owner-name">un3assy</div>
+                    <div class="owner-label">OWNER</div>
+                </div>
+                <div class="encryption-box">
+                    🔐 SZYFROWANIE DANYCH 🔐<br>
+                    ID: 834729583472958347295834<br>
+                    HASH: 1234235345214 8892347623948<br>
+                    📁 Pliki NIE są zapisywane w bazie danych<br>
+                    💾 Dane przechowywane jako zaszyfrowane cyfry
+                </div>
+                <div class="credits-info" style="text-align:center; margin-top:1rem;">
+                    <p>✨ Wersja 1.0 ✨</p>
+                    <p>© 2025 AnonChat - Created by un3assy</p>
+                </div>
+                <div class="back-link">
+                    <button id="backFromCredits" class="primary">← Powrót</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">🌈 tęczowe nicki • awatary • tagi od OWNER • szyfrowane dane</div>
+    </div>
+</div>
+
+<script>
+    let users = [];
+    let currentUser = null;
+    let savedNick = "";
+    let savedAvatar = null;
+    let posts = [];
+    let nextId = 1;
+    let currentPreviewUrl = null;
+    let ownerTags = [];
+
+    const OWNER_USERNAME = "un3assy";
+
+    function isOwner() {
+        return currentUser && currentUser.username === OWNER_USERNAME;
+    }
+
+    function loadUsers() {
+        const stored = localStorage.getItem('anonchat_users');
+        if (stored) users = JSON.parse(stored);
+        else users = [];
+        
+        if (!users.find(u => u.username === OWNER_USERNAME)) {
+            users.push({ username: OWNER_USERNAME, password: "owner123" });
+            saveUsers();
+        }
+    }
+
+    function saveUsers() {
+        localStorage.setItem('anonchat_users', JSON.stringify(users));
+    }
+
+    function loadOwnerTags() {
+        const stored = localStorage.getItem('anonchat_owner_tags');
+        if (stored) ownerTags = JSON.parse(stored);
+        else ownerTags = [];
+        renderTagsList();
+    }
+
+    function saveOwnerTags() {
+        localStorage.setItem('anonchat_owner_tags', JSON.stringify(ownerTags));
+        renderTagsList();
+        renderPosts();
+    }
+
+    function addTag(emoji, name) {
+        if (!emoji || !name) return false;
+        ownerTags.push({ emoji, name });
+        saveOwnerTags();
+        return true;
+    }
+
+    function removeTag(index) {
+        ownerTags.splice(index, 1);
+        saveOwnerTags();
+    }
+
+    function renderTagsList() {
+        const container = document.getElementById('tagsList');
+        if (!container) return;
+        if (ownerTags.length === 0) {
+            container.innerHTML = '<div style="color:#6b7280; text-align:center;">Brak tagów. Dodaj pierwszy tag!</div>';
+            return;
+        }
+        container.innerHTML = ownerTags.map((tag, idx) => `
+            <div class="tag-item">
+                <div class="tag-preview">${tag.emoji} ${tag.name}</div>
+                <button class="delete-tag" data-index="${idx}">🗑️ Usuń</button>
+            </div>
+        `).join('');
+        
+        document.querySelectorAll('.delete-tag').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.index);
+                removeTag(idx);
+            });
+        });
+    }
+
+    function registerUser(username, password) {
+        if (users.find(u => u.username === username)) {
+            return { success: false, error: "Nazwa już istnieje!" };
+        }
+        users.push({ username, password });
+        saveUsers();
+        return { success: true };
+    }
+
+    function loginUser(username, password) {
+        const user = users.find(u => u.username === username && u.password === password);
+        if (user) return { success: true, user };
+        return { success: false, error: "Nieprawidłowe dane!" };
+    }
+
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+    const loginFormDiv = document.getElementById('loginForm');
+    const registerFormDiv = document.getElementById('registerForm');
+
+    loginTab.onclick = () => {
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+        loginFormDiv.classList.add('active');
+        registerFormDiv.classList.remove('active');
+    };
+
+    registerTab.onclick = () => {
+        registerTab.classList.add('active');
+        loginTab.classList.remove('active');
+        registerFormDiv.classList.add('active');
+        loginFormDiv.classList.remove('active');
+    };
+
+    document.getElementById('loginBtn').onclick = () => {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const result = loginUser(username, password);
+        if (result.success) {
+            currentUser = result.user;
+            localStorage.setItem('anonchat_current_user', username);
+            document.getElementById('authPanel').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            updateOwnerUI();
+            loadUserData();
+            loadOwnerTags();
+        } else {
+            document.getElementById('loginError').textContent = '❌ ' + result.error;
+        }
+    };
+
+    document.getElementById('registerBtn').onclick = () => {
+        const username = document.getElementById('regUsername').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const confirm = document.getElementById('regConfirmPassword').value;
+        
+        if (username === OWNER_USERNAME) {
+            document.getElementById('registerError').textContent = '❌ Ta nazwa jest zarezerwowana!';
+            return;
+        }
+        if (username.length < 3) {
+            document.getElementById('registerError').textContent = '❌ Nazwa musi mieć min. 3 znaki!';
+            return;
+        }
+        if (password.length < 3) {
+            document.getElementById('registerError').textContent = '❌ Hasło musi mieć min. 3 znaki!';
+            return;
+        }
+        if (password !== confirm) {
+            document.getElementById('registerError').textContent = '❌ Hasła nie są identyczne!';
+            return;
+        }
+        
+        const result = registerUser(username, password);
+        if (result.success) {
+            document.getElementById('registerSuccess').textContent = '✓ Rejestracja udana! Możesz się zalogować.';
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regConfirmPassword').value = '';
+            setTimeout(() => loginTab.click(), 1500);
+        } else {
+            document.getElementById('registerError').textContent = '❌ ' + result.error;
+        }
+    };
+
+    function updateOwnerUI() {
+        const ownerBadge = document.getElementById('ownerBadgeHeader');
+        const profileCard = document.getElementById('profileCard');
+        const ownerTagsCard = document.getElementById('ownerTagsCard');
+        if (isOwner()) {
+            ownerBadge.style.display = 'inline-block';
+            profileCard.classList.add('owner-highlight');
+            ownerTagsCard.style.display = 'block';
+        } else {
+            ownerBadge.style.display = 'none';
+            profileCard.classList.remove('owner-highlight');
+            ownerTagsCard.style.display = 'none';
+        }
+    }
+
+    document.getElementById('addTagBtn')?.addEventListener('click', () => {
+        const emoji = document.getElementById('tagEmoji').value.trim();
+        const name = document.getElementById('tagName').value.trim();
+        if (!emoji || !name) {
+            alert('Wprowadź emotkę i nazwę tagu!');
+            return;
+        }
+        addTag(emoji, name);
+        document.getElementById('tagEmoji').value = '';
+        document.getElementById('tagName').value = '';
+    });
+
+    function checkAutoLogin() {
+        loadUsers();
+        const storedUser = localStorage.getItem('anonchat_current_user');
+        if (storedUser) {
+            const user = users.find(u => u.username === storedUser);
+            if (user) {
+                currentUser = user;
+                document.getElementById('authPanel').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                updateOwnerUI();
+                loadUserData();
+                loadOwnerTags();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function logout() {
+        localStorage.removeItem('anonchat_current_user');
+        currentUser = null;
+        document.getElementById('authPanel').classList.remove('hidden');
+        document.getElementById('appContainer').classList.add('hidden');
+    }
+
+    function getStorageKey() {
+        return `anonchat_data_${currentUser.username}`;
+    }
+
+    function encryptData(data) {
+        let result = "";
+        const str = JSON.stringify(data);
+        for(let i = 0; i < str.length; i++) {
+            result += str.charCodeAt(i).toString();
+        }
+        return result;
+    }
+
+    function decryptData(encrypted) {
+        try {
+            let result = "";
+            let i = 0;
+            while(i < encrypted.length) {
+                let num = "";
+                while(i < encrypted.length && encrypted[i] >= '0' && encrypted[i] <= '9') {
+                    num += encrypted[i];
+                    i++;
+                }
+                if(num) result += String.fromCharCode(parseInt(num));
+                else i++;
+            }
+            return JSON.parse(result);
+        } catch(e) {
+            return null;
+        }
+    }
+
+    function savePosts() {
+        const toStore = posts.map(p => ({
+            id: p.id, nick: p.nick, text: p.text, imageBase64: p.imageBase64,
+            avatarBase64: p.avatarBase64, timestamp: p.timestamp
+        }));
+        localStorage.setItem(getStorageKey(), encryptData(toStore));
+    }
+
+    function loadPostsForUser() {
+        const stored = localStorage.getItem(getStorageKey());
+        if (stored) {
+            const decrypted = decryptData(stored);
+            if (decrypted && Array.isArray(decrypted)) {
+                posts = decrypted;
+                if (posts.length) nextId = Math.max(...posts.map(p => p.id)) + 1;
+                else nextId = 1;
+            } else { posts = []; nextId = 1; }
+        } else { posts = []; nextId = 1; }
+        renderPosts();
+    }
+
+    function loadProfileForUser() {
+        const storedNick = localStorage.getItem(`nick_${currentUser.username}`);
+        const storedAvatar = localStorage.getItem(`avatar_${currentUser.username}`);
+        savedNick = storedNick || "";
+        savedAvatar = storedAvatar || null;
+        document.getElementById('nickInput').value = savedNick;
+        updateAvatarPreview();
+    }
+
+    function saveProfileForUser() {
+        if (savedNick) localStorage.setItem(`nick_${currentUser.username}`, savedNick);
+        else localStorage.removeItem(`nick_${currentUser.username}`);
+        if (savedAvatar) localStorage.setItem(`avatar_${currentUser.username}`, savedAvatar);
+        else localStorage.removeItem(`avatar_${currentUser.username}`);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+
+    function getRainbowNick(nickname) {
+        if (!nickname) nickname = "Anon";
+        const chars = Array.from(nickname);
+        if (!chars.length) return '<span style="color:#9ca3af;">Anon</span>';
+        const step = 360 / chars.length;
+        return chars.map((ch, i) => `<span style="color: hsl(${(i*step)%360}, 80%, 65%);">${escapeHtml(ch)}</span>`).join('');
+    }
+
+    function formatDate(ts) {
+        const d = new Date(ts);
+        return `${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')}.${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    }
+
+    function updateAvatarPreview() {
+        const container = document.getElementById('currentAvatarPreview');
+        container.innerHTML = '';
+        if (savedAvatar) {
+            const img = document.createElement('img');
+            img.src = savedAvatar;
+            img.style.width = '48px';
+            img.style.height = '48px';
+            img.style.borderRadius = '50%';
+            img.style.border = '2px solid #8b5cf6';
+            container.appendChild(img);
+        } else {
+            const div = document.createElement('div');
+            div.textContent = '👤';
+            div.style.width = '48px';
+            div.style.height = '48px';
+            div.style.borderRadius = '50%';
+            div.style.background = '#2a2f35';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'center';
+            div.style.fontSize = '1.5rem';
+            container.appendChild(div);
+        }
+    }
+
+    function renderPosts() {
+        const container = document.getElementById('postsContainer');
+        if (!posts.length) {
+            container.innerHTML = '<div class="empty">✨ Brak postów</div>';
+            return;
+        }
+        const sorted = [...posts].sort((a,b) => b.timestamp - a.timestamp);
+        container.innerHTML = sorted.map(post => {
+            const avatarHtml = post.avatarBase64 ? 
+                `<div class="post-avatar"><img src="${post.avatarBase64}"></div>` :
+                `<div class="post-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7280'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z'/%3E%3C/svg%3E"></div>`;
+            const imgHtml = post.imageBase64 ? `<div class="post-image"><img src="${post.imageBase64}"></div>` : '';
+            const isPostOwner = post.nick === OWNER_USERNAME;
+            const ownerSpan = isPostOwner ? '<span class="owner-badge" style="font-size:0.65rem; margin-left:0.3rem;">👑 OWNER</span>' : '';
+            
+            let tagsHtml = '';
+            if (isPostOwner && ownerTags.length > 0) {
+                tagsHtml = ownerTags.map(tag => `<span class="custom-tag">${tag.emoji} ${tag.name}</span>`).join('');
+            }
+            
+            return `
+                <div class="post">
+                    ${avatarHtml}
+                    <div class="post-content-wrapper">
+                        <div class="post-header">
+                            <span class="nickname">${getRainbowNick(post.nick)}${ownerSpan}${tagsHtml}</span>
+                            <span class="date">${formatDate(post.timestamp)}</span>
+                        </div>
+                        <div class="post-text">${escapeHtml(post.text).replace(/\n/g, '<br>')}</div>
+                        ${imgHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function addPost() {
+        const text = document.getElementById('postText').value.trim();
+        if (!text) {
+            document.getElementById('postError').textContent = '❌ Wpisz treść!';
+            return;
+        }
+        const finalNick = savedNick || (isOwner() ? OWNER_USERNAME : "Anon");
+        const finalAvatar = savedAvatar;
+        
+        let imageBase64 = null;
+        const file = document.getElementById('imageInput').files[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                document.getElementById('postError').textContent = '❌ Tylko obrazy!';
+                return;
+            }
+            imageBase64 = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        posts.push({
+            id: nextId++, nick: finalNick, text: text, imageBase64: imageBase64,
+            avatarBase64: finalAvatar, timestamp: Date.now()
+        });
+        savePosts();
+        document.getElementById('postText').value = '';
+        document.getElementById('imageInput').value = '';
+        if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
+        document.getElementById('imagePreviewContainer').innerHTML = '';
+        renderPosts();
+        document.getElementById('postError').textContent = '✓ Post dodany!';
+        setTimeout(() => document.getElementById('postError').textContent = '', 2000);
+    }
+
+    function loadUserData() {
+        loadPostsForUser();
+        loadProfileForUser();
+    }
+
+    document.getElementById('logoutBtn').onclick = logout;
+    document.getElementById('saveNickBtn').onclick = () => {
+        savedNick = document.getElementById('nickInput').value.trim();
+        saveProfileForUser();
+        alert(savedNick ? `Nick zapisany: ${savedNick}` : "Nick usunięty, będziesz Anonem");
+    };
+    document.getElementById('removeAvatarBtn').onclick = () => {
+        savedAvatar = null;
+        saveProfileForUser();
+        updateAvatarPreview();
+    };
+    document.getElementById('avatarInput').onchange = (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                savedAvatar = ev.target.result;
+                saveProfileForUser();
+                updateAvatarPreview();
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    document.getElementById('imageInput').onchange = (e) => {
+        const file = e.target.files[0];
+        if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
+        const container = document.getElementById('imagePreviewContainer');
+        container.innerHTML = '';
+        if (file && file.type.startsWith('image/')) {
+            currentPreviewUrl = URL.createObjectURL(file);
+            const img = document.createElement('img');
+            img.src = currentPreviewUrl;
+            img.style.maxWidth = '80px';
+            img.style.maxHeight = '80px';
+            img.style.borderRadius = '8px';
+            container.appendChild(img);
+        }
+    };
+    document.getElementById('submitPostBtn').onclick = addPost;
+
+    const homeBtn = document.getElementById('homeBtn');
+    const mainPageBtn = document.getElementById('mainPageBtn');
+    const clownsBtn = document.getElementById('clownsBtn');
+    const creditsBtn = document.getElementById('creditsBtn');
+    const mainPageDiv = document.getElementById('mainPage');
+    const clownsPageDiv = document.getElementById('clownsPage');
+    const creditsPageDiv = document.getElementById('creditsPage');
+    const backFromClowns = document.getElementById('backFromClowns');
+    const backFromCredits = document.getElementById('backFromCredits');
+
+    function showMain() {
+        mainPageDiv.classList.remove('hidden-page');
+        clownsPageDiv.classList.add('hidden-page');
+        creditsPageDiv.classList.add('hidden-page');
+        mainPageBtn.classList.add('active');
+        clownsBtn.classList.remove('active');
+        creditsBtn.classList.remove('active');
+    }
+    function showClowns() {
+        mainPageDiv.classList.add('hidden-page');
+        clownsPageDiv.classList.remove('hidden-page');
+        creditsPageDiv.classList.add('hidden-page');
+        mainPageBtn.classList.remove('active');
+        clownsBtn.classList.add('active');
+        creditsBtn.classList.remove('active');
+    }
+    function showCredits() {
+        mainPageDiv.classList.add('hidden-page');
+        clownsPageDiv.classList.add('hidden-page');
+        creditsPageDiv.classList.remove('hidden-page');
+        mainPageBtn.classList.remove('active');
+        clownsBtn.classList.remove('active');
+        creditsBtn.classList.add('active');
+    }
+
+    homeBtn.onclick = showMain;
+    mainPageBtn.onclick = showMain;
+    clownsBtn.onclick = showClowns;
+    creditsBtn.onclick = showCredits;
+    backFromClowns.onclick = showMain;
+    backFromCredits.onclick = showMain;
+
+    checkAutoLogin();
+</script>
+</body>
+</html>
